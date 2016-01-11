@@ -10,8 +10,36 @@ var _ = require('lodash'),
   mongoose = require('mongoose'),
   multer = require('multer'),
   config = require(path.resolve('./config/config')),
-  User = mongoose.model('User');
+  User = mongoose.model('User'),
+  cronofy = require('cronofy');
 
+/*
+ * Request for the acces code and make a request for a token
+ * Response Params: code state
+ */
+exports.getCodeCronofy = function (req, res) {
+
+  var code = req.query.code;
+  
+  var optionsAut = {
+    client_id: 'Vp3tb9LgZlwchEcR4TkNuUtQN0TBCR2n',
+    client_secret: 'ZBo4VWOY2mkMvkk6wuh9Sl1TJThQ4Bv7GWv2YCOGXVZWHkBKwuIZOjrEwE70hlU7w88RPCKPkA-fbjMqdf6Tbg',
+    grant_type: 'authorization_code',
+    code: code,
+    redirect_uri: 'http://localhost:3000/api/users/authCronofy'
+  };
+ 
+  cronofy.requestAccessToken(optionsAut)
+    .then(function(response){
+      console.log(response);
+    }, function(err) {
+      console.log(err);
+    });
+}
+
+exports.requestTokenCronofy = function (req, res) {
+  console.log("RESPONSE :", req);
+}
 /**
  * Update user details
  */
