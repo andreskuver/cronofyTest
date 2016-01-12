@@ -97,7 +97,15 @@ var UserSchema = new Schema({
   },
   resetPasswordExpires: {
     type: Date
-  }
+  },
+  calendar_providers: [{
+    access_token: String,
+    expires_in: Number,
+    refresh_token: String,
+    scope: String,
+    account_id: String,
+    linking_profile: Object
+  }]
 });
 
 /**

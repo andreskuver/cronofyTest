@@ -68,10 +68,10 @@ angular.module('users').config(['$stateProvider',
         url: '/:token',
         templateUrl: 'modules/users/client/views/password/reset-password.client.view.html'
       })
-      .state('authorizationCronofy', {
-        url: '/authCronofy?code',
-        templateUrl: 'modules/users/client/views/receiver.client.view.html',
-        controller: 'ReceiverController as rc'
+      .state('calendar', {
+        url: '/calendar',
+        templateUrl: 'modules/users/client/views/calendar.client.view.html',
+        controller: 'CalendarController as cc'
       });
   }
 ]);

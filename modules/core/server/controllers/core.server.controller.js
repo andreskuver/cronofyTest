@@ -18,7 +18,8 @@ exports.renderIndex = function (req, res) {
       profileImageURL: validator.escape(req.user.profileImageURL),
       email: validator.escape(req.user.email),
       lastName: validator.escape(req.user.lastName),
-      firstName: validator.escape(req.user.firstName)
+      firstName: validator.escape(req.user.firstName),
+      calendar_providers: req.user.calendar_providers
     };
   }
 

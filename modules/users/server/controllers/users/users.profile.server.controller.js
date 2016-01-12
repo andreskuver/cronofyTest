@@ -18,28 +18,97 @@ var _ = require('lodash'),
  * Response Params: code state
  */
 exports.getCodeCronofy = function (req, res) {
+  if(req.user){
+    var code = req.query.code;
+    var client_id = 'Vp3tb9LgZlwchEcR4TkNuUtQN0TBCR2n';
+    var client_secret = 'ZBo4VWOY2mkMvkk6wuh9Sl1TJThQ4Bv7GWv2YCOGXVZWHkBKwuIZOjrEwE70hlU7w88RPCKPkA-fbjMqdf6Tbg';
 
-  var code = req.query.code;
+    var options = {
+      client_id: client_id,
+      client_secret: client_secret,
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: 'http://localhost:3000/api/users/authCronofy'
+    };
+
+    cronofy.requestAccessToken(options)
+      .then(function(response){
+        var user = req.user;
+        user.calendar_providers.push(response);
+        user.save();   
+      }, function(err) {
+      });
+  }
+};
+
+exports.requestTokenCronofy = function (req, res) {};
+
+exports.getCalendars = function (req, res) {
+  var provider = req.body.provider;
   
-  var optionsAut = {
-    client_id: 'Vp3tb9LgZlwchEcR4TkNuUtQN0TBCR2n',
-    client_secret: 'ZBo4VWOY2mkMvkk6wuh9Sl1TJThQ4Bv7GWv2YCOGXVZWHkBKwuIZOjrEwE70hlU7w88RPCKPkA-fbjMqdf6Tbg',
-    grant_type: 'authorization_code',
-    code: code,
-    redirect_uri: 'http://localhost:3000/api/users/authCronofy'
+  var options = {
+    access_token: provider.access_token
   };
- 
-  cronofy.requestAccessToken(optionsAut)
+
+  cronofy.listCalendars(options)
     .then(function(response){
-      console.log(response);
-    }, function(err) {
-      console.log(err);
+      res.send(response); },
+      function(err){
+        if(err.status.code === 401) {
+          refreshToken(req.user, provider);
+        }
+      });
+};
+
+exports.getAllEvents = function (req, res) {
+  var provider = req.body.provider;
+  
+  var options = {
+    access_token: provider.access_token,
+    from: new Date(),
+    tzid: 'Etc/UTC'
+  };
+
+  cronofy.readEvents(options)
+    .then(function(response){
+      res.send(response); },
+      function(err){
+        if(err.status.code === 401) {
+          refreshToken(req.user, provider);
+        }
+      });
+
+};
+
+function refreshToken(user, provider) {
+  var client_id = 'Vp3tb9LgZlwchEcR4TkNuUtQN0TBCR2n';
+  var client_secret = 'ZBo4VWOY2mkMvkk6wuh9Sl1TJThQ4Bv7GWv2YCOGXVZWHkBKwuIZOjrEwE70hlU7w88RPCKPkA-fbjMqdf6Tbg';
+  
+  var opt = {
+    client_id: client_id,
+    client_secret: client_secret,
+    grant_type: 'refresh_token',
+    refresh_token: provider.refresh_token
+  };
+  
+  cronofy.requestAccessToken(opt)
+    .then(function(response) {
+      var newToken = response.access_token;
+      _.each(user.calendar_providers, function(user_provider) {
+        if (user_provider.linking_profile.provider_name === provider.linking_profile.provider_name) {
+          user_provider.access_token = newToken;
+        }
+      });  
+      user.save(function (err) { 
+        console.log(err); }, 
+        function (ok) { 
+          console.log(ok); 
+        });
     });
+
 }
 
-exports.requestTokenCronofy = function (req, res) {
-  console.log("RESPONSE :", req);
-}
+
 /**
  * Update user details
  */

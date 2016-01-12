@@ -25,7 +25,6 @@ module.exports = function () {
           message: 'Invalid username or password'
         });
       }
-
       return done(null, user);
     });
   }));
