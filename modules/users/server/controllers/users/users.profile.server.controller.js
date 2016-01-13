@@ -13,6 +13,8 @@ var _ = require('lodash'),
   User = mongoose.model('User'),
   cronofy = require('cronofy');
 
+var request = require('request');
+
 /*
  * Request for the acces code and make a request for a token
  * Response Params: code state
@@ -60,37 +62,58 @@ exports.getCalendars = function (req, res) {
       });
 };
 
+function buildQueryString(calendarsID) {
+  var jsonString = "tzid=Etc/UTC";
+  var text='';
+  for (var i = calendarsID.length - 1; i >= 0; i--) {
+    text += 'calendar_ids[]=' + calendarsID[i];
+    if(i > 0)
+       text += '&';
+  };
+  jsonString += "&" + text;
+  jsonString += "";
+
+  return jsonString;
+}
+
 exports.getAllEvents = function (req, res) {
+
   var access_token = req.query.access_token;
   var refresh_token = req.query.refresh_token;
   var provider_name = req.query.provider_name;
-
   var calendarsID = req.query.calendar_ids;
+
   var options = {
     access_token: access_token,
-    "calendar_ids[]": calendarsID,
     from: new Date(),
     tzid: 'Etc/UTC'
   };
 
-  cronofy.readEvents(options)
-    .then(function(response){
-      res.send(response); },
-      function(err){
-        if(err.status.code === 401) {
-          var provider = {
-            refresh_token: refresh_token,
-            linking_profile: 
-              {
-                provider_name:provider_name
-              }
-          }
-          refreshToken(req.user, provider);
-        } else {
-          console.log(err);
-        }
-      });
+  var url = 'https://api.cronofy.com/v1/events?' + buildQueryString(calendarsID);
+  var config = {
+    url: url,
+    method: 'GET', //Specify the method
+    headers: {Authorization: 'Bearer ' + access_token}
+    //qs: JSON.parse(jsonString)
+  }
 
+  request.get(config, function(err,r,body) {
+    if (!err) {
+      res.send(body);
+    } else {
+      if(err.status.code === 401) {
+        var provider = {
+          refresh_token: refresh_token,
+          linking_profile: {
+            provider_name:provider_name
+          }
+        }
+        refreshToken(req.user, provider);
+      } else {
+        console.log(err);
+      }
+    }
+  });
 };
 
 function refreshToken(user, provider) {

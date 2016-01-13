@@ -15,6 +15,7 @@
     vm.events = [];
     vm.pushCalendar = pushCalendar;
     vm.calendarSelectedIDS = [];
+    
     init();
 
     function init() {
@@ -59,26 +60,19 @@
         refresh_token: provider.refresh_token,
         provider_name: provider.linking_profile.provider_name,
         "calendar_ids[]": calendarsIDs,
-        tzid: 'Etc/UTC',
-        options: {
-          "calendar_ids[]": calendarsIDs
-        }
-      };
-
-      var req = {
-        method:'GET',
-        url : 'https://api.cronofy.com/v1/events',
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': "*",
-          Authorization: 'Bearer' + provider.access_token
-        },
-        params: params
+        tzid: 'Etc/UTC'
       };
 
       $http.get('/api/users/allEvents', { params: params })
         .then(function (ok) {
-          vm.events = ok.data.events;
+          var events = ok.data.events;
+          for (var i = events.length - 1; i >= 0; i--) {
+            var newEvent = {};
+            newEvent.title = events[i].summary;
+            newEvent.startsAt = events[i].start;
+            newEvent.endsAt = events[i].end;
+            vm.events.push(newEvent);
+          };
         },
           function(err) {
 
