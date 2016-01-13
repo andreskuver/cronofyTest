@@ -76,13 +76,15 @@
         params: params
       };
 
-      $http(req)
-        .then(function (ok,s) {
-         console.log(ok);
-         console.log(s);
+      $http.get('/api/users/allEvents', { params: params })
+        .then(function (ok) {
+          vm.events = ok.data.events;
+        },
+          function(err) {
 
-        })
-      };
+          }
+      );
+    }
 
     function getCalendars (provider,cb) {
       $http.post('/api/users/calendars', { provider: provider })
