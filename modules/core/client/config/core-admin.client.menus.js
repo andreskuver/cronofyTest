@@ -8,5 +8,11 @@ angular.module('core.admin').run(['Menus',
       type: 'dropdown',
       roles: ['admin']
     });
+    Menus.addMenuItem('topbar', {
+      title: 'Calendar',
+      state: 'calendar',
+      type: 'dropdown',
+      roles: ['*']
+    });
   }
 ]);
