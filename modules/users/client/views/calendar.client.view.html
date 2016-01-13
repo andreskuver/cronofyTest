@@ -7,15 +7,28 @@
 </div> -->
 
 <br>
+
 <div class="row">
 <h3>Linked Accounts</h3>
   <ul class="list-group col-md-6">
-    <li class="list-group-item" ng-repeat="provider in cc.user.calendar_providers">
-      {{provider.linking_profile.provider_name}}
+    <li class="list-group-item" ng-repeat="provider in cc.userCalendars">
+      <h4>{{provider[0].provider_name}}
+      <small data-ng-click="showCalendars=!showCalendars" >
+          <span data-ng-if="!showCalendars">See Calendars</span>
+          <span data-ng-if="showCalendars">Hide Calendars</span>
+      </small>
+      </h4>
+
+      <div ng-if="showCalendars">
+        <div  ng-repeat="calendar in provider">
+          <input type="checkbox" ng-click="cc.pushCalendar(calendar.calendar_id)" /> {{calendar.calendar_name}}
+        </div>
+      </div>
+      <!--
       <div class="pull-right">
         <button class="button" ng-click="cc.getEvents(provider)">Show Events</button>
-        <button class="button" ng-click="cc.getCalendars(provider)">Show Calendars</button>
       </div>
+      -->
     </li>
   </ul>
 </div>
@@ -79,8 +92,8 @@
     on-edit-event-click="cc.eventEdited(calendarEvent)"
     on-delete-event-click="cc.eventDeleted(calendarEvent)"
     cell-is-open="cc.isCellOpen"
-    day-view-start="06:00"
-    day-view-end="22:00"
+    day-view-start="00:00"
+    day-view-end="23:59"
     day-view-split="30"
     cell-modifier="cc.modifyCell(calendarCell)">
   </mwl-calendar>

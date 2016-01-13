@@ -13,7 +13,7 @@ module.exports = function (app) {
   app.route('/api/users/picture').post(users.changeProfilePicture);
   app.route('/api/users/authCronofy').get(users.getCodeCronofy);
   app.route('/api/users/authCronofy').post(users.requestTokenCronofy);
-  app.route('/api/users/allEvents').post(users.getAllEvents);
+  app.route('/api/users/allEvents').get(users.getAllEvents);
   app.route('/api/users/calendars').post(users.getCalendars);
 
   // Finish by binding the user middleware

@@ -61,10 +61,14 @@ exports.getCalendars = function (req, res) {
 };
 
 exports.getAllEvents = function (req, res) {
-  var provider = req.body.provider;
-  
+  var access_token = req.query.access_token;
+  var refresh_token = req.query.refresh_token;
+  var provider_name = req.query.provider_name;
+
+  var calendarsID = req.query.calendar_ids;
   var options = {
-    access_token: provider.access_token,
+    access_token: access_token,
+    "calendar_ids[]": calendarsID,
     from: new Date(),
     tzid: 'Etc/UTC'
   };
@@ -74,7 +78,16 @@ exports.getAllEvents = function (req, res) {
       res.send(response); },
       function(err){
         if(err.status.code === 401) {
+          var provider = {
+            refresh_token: refresh_token,
+            linking_profile: 
+              {
+                provider_name:provider_name
+              }
+          }
           refreshToken(req.user, provider);
+        } else {
+          console.log(err);
         }
       });
 
